@@ -47,6 +47,7 @@ func displayStats(channel chan statsMessage) {
 
 			elapsedSeconds := time.Since(start).Seconds()
 
+			fmt.Printf("%s %s\t", aurora.Faint("Timestamp:"), time.Now().Format("15:04:05"))
 			if sent > 0 {
 				fmt.Printf(
 					"%s %6.dr/s",
