@@ -114,7 +114,7 @@ func testRequest(domain string) bool {
 	if iterative {
 		message.RecursionDesired = false
 	}
-	err := dnsExchange(resolver, message)
+	_, err := dnsExchange(resolver, message)
 	if err != nil {
 		fmt.Printf("Checking \"%s\" failed: %+v (using %s)\n", domain, aurora.Red(err), resolver)
 		return true
@@ -155,11 +155,14 @@ func linearResolver(threadID int, domain string, sentCounterCh chan<- statsMessa
 				go dnsExchange(resolver, message)
 			} else {
 				start = time.Now()
-				err := dnsExchange(resolver, message)
+				message, err := dnsExchange(resolver, message)
 				spent := time.Since(start)
 				elapsed += spent
 				if spent > maxElapsed {
 					maxElapsed = spent
+				}
+				if spent > 100*time.Millisecond {
+					err = fmt.Errorf("slow response: %s, message: %s", spent, message.String())
 				}
 				if err != nil {
 					if verbose {
@@ -183,11 +186,11 @@ func linearResolver(threadID int, domain string, sentCounterCh chan<- statsMessa
 	}
 }
 
-func dnsExchange(resolver string, message *dns.Msg) error {
+func dnsExchange(resolver string, message *dns.Msg) (*dns.Msg, error) {
 	//XXX: How can we share the connection between subsequent attempts ?
 	dnsconn, err := net.Dial("udp", resolver)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	co := &dns.Conn{Conn: dnsconn}
 	defer co.Close()
@@ -195,6 +198,6 @@ func dnsExchange(resolver string, message *dns.Msg) error {
 	// Actually send the message and wait for answer
 	co.WriteMsg(message)
 
-	_, err = co.ReadMsg()
-	return err
+	m, err := co.ReadMsg()
+	return m, err
 }
