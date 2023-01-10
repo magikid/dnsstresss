@@ -162,12 +162,14 @@ func linearResolver(threadID int, domain string, sentCounterCh chan<- statsMessa
 					maxElapsed = spent
 				}
 				if spent > 100*time.Millisecond {
-					err = fmt.Errorf("slow response: %s, message: \n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!\n%s\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!\n", spent, message.String())
+					if verbose {
+						err = fmt.Errorf("slow response: %s, message: \n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!\n%s\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!\n", spent, message.String())
+					} else {
+						err = fmt.Errorf("slow response: %s", spent)
+					}
 				}
 				if err != nil {
-					if verbose {
-						fmt.Printf("%s error: %s (%s)\n", domain, err, resolver)
-					}
+					fmt.Printf("%s error: %s (%s)\n", domain, err, resolver)
 					errors++
 				}
 			}
