@@ -43,7 +43,7 @@ func init() {
 }
 
 func main() {
-	fmt.Printf("dnsstresss - dns stress tool\n\n")
+	fmt.Printf("!!! The good version - dnsstresss - dns stress tool\n\n")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, strings.Join([]string{
