@@ -1,4 +1,4 @@
-module github.com/MickaelBergem/dnsstresss
+module github.com/magikid/dnsstresss
 
 go 1.14
 
